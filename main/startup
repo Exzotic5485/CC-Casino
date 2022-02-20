@@ -1,0 +1,44 @@
+rednet.open("top")
+local databasePath = "db"
+local database
+
+if not fs.exists(databasePath) then
+	database = {}
+	local file = fs.open(databasePath, "w")
+	file.write("{}")
+	file.close()
+else	
+	local file = fs.open(databasePath, "r")
+	database = textutils.unserialise(file.readAll())
+	file.close()
+end
+
+print("Database loaded.")
+print("Exzotic Will Be Alarmed If Breached")
+
+while true do
+	local id, data = rednet.receive("license")
+	print(textutils.serialise(data))
+	if data.type == "getPlayerLicense" then
+		print("Fetching license for ", data.player)
+		rednet.send(id, database[data.player], "license")
+	elseif data.type == "setPlayerLicense" then
+		print("Setting license for ", data.player, " to ", data.license)
+		database[data.player].license = data.license
+		local file = fs.open(databasePath, "w")
+		file.write(textutils.serialise(database))
+		file.close()
+		rednet.send(id, nil, "license")
+	elseif data.type == "addPlayer" then
+		print("Adding player: #"..data.player, data.name)
+		database[data.player] = {
+			name=data.name,
+			licence=valid
+		}
+		local file = fs.open(databasePath, "w")
+		file.write(textutils.serialise(database))
+		file.close()
+		rednet.send(id, nil, "license")
+
+	end
+end
