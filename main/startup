@@ -1,4 +1,5 @@
-rednet.open("top")
+rednet.open("bottom")
+peripheral.wrap("right")
 local databasePath = "db"
 local database
 
@@ -17,28 +18,28 @@ print("Database loaded.")
 print("Exzotic Will Be Alarmed If Breached")
 
 while true do
-	local id, data = rednet.receive("license")
+	local id, data = rednet.receive("otto")
 	print(textutils.serialise(data))
-	if data.type == "getPlayerLicense" then
-		print("Fetching license for ", data.player)
-		rednet.send(id, database[data.player], "license")
-	elseif data.type == "setPlayerLicense" then
-		print("Setting license for ", data.player, " to ", data.license)
-		database[data.player].license = data.license
+	if data.type == "getPlayerBalance" then
+		print("Fetching balance for ", data.player)
+		rednet.send(id, database[data.player], "otto")
+	elseif data.type == "setPlayerBalance" then
+		print("Setting balance for ", data.player, " to ", data.balance)
+		database[data.player].balance = data.balance
 		local file = fs.open(databasePath, "w")
 		file.write(textutils.serialise(database))
 		file.close()
-		rednet.send(id, nil, "license")
+		rednet.send(id, nil, "otto")
 	elseif data.type == "addPlayer" then
 		print("Adding player: #"..data.player, data.name)
 		database[data.player] = {
 			name=data.name,
-			licence=valid
+			balance=0
 		}
 		local file = fs.open(databasePath, "w")
 		file.write(textutils.serialise(database))
 		file.close()
-		rednet.send(id, nil, "license")
+		rednet.send(id, nil, "otto")
 
 	end
 end
